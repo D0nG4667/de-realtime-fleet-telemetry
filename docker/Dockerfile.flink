@@ -1,0 +1,53 @@
+# ==============================================================================
+# Dockerfile.flink: Custom PyFlink-enabled Flink Image
+# Installs Python3 and required runtime libraries for Python UDF execution
+# ==============================================================================
+FROM flink:2.3.0-scala_2.12
+
+# Switch to root to perform system package installations
+USER root
+
+# Install system python packages (Debian-based base)
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends \
+      python3 \
+      python3-dev \
+      build-essential && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set python3 as default python command
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
+# Enable S3 filesystem support in Flink via Presto S3 connector
+RUN mkdir -p /opt/flink/plugins/s3-fs-presto && \
+    cp /opt/flink/opt/flink-s3-fs-presto-*.jar /opt/flink/plugins/s3-fs-presto/
+
+
+# Copy the uv binaries from the official image
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Establish working directory
+WORKDIR /app
+
+# Copy dependency files
+COPY pyproject.toml uv.lock ./
+
+# Synchronize dependencies using uv sync to keep the image slim and isolated
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --no-install-project --only-group flink
+
+# FLINK RUNTIME:
+# 1. Prioritize the virtual environment in the system PATH
+# 2. Tell Flink exactly which Python binary to use globally
+# 3. Tell Flink's worker nodes which Python binary to use for executing UDFs
+ENV PATH="/app/.venv/bin:$PATH"
+ENV FLINK_HOME="/opt/flink"
+ENV python.executable="/app/.venv/bin/python"
+ENV python.client.executable="/app/.venv/bin/python"
+
+# Ensure Flink user owns the app directory and dependencies
+RUN chown -R flink:flink /app
+
+# Switch back to flink user for runtime container security compliance
+USER flink
+

@@ -1,0 +1,39 @@
+# ==============================================================================
+# Apache Flink Configuration Spec
+# ==============================================================================
+
+# JobManager Connection Parameters
+jobmanager.rpc.address: flink-jobmanager
+jobmanager.rpc.port: 6123
+
+# TaskManager Parallelism & Slot Allocation
+# Matching horizontal partition scaling configs
+taskmanager.numberOfTaskSlots: 4
+parallelism.default: 1
+
+# ------------------------------------------------------------------------------
+# JVM Resource Management & Memory Allocations
+# Prevents TaskManager OOM crashes under high JSON serialization loads
+# ------------------------------------------------------------------------------
+jobmanager.memory.process.size: 1024m
+taskmanager.memory.process.size: 2048m
+
+taskmanager.memory.framework.heap.size: 128m
+taskmanager.memory.task.heap.size: 512m
+taskmanager.memory.managed.size: 256m
+
+# ------------------------------------------------------------------------------
+# Checkpointing & Stateful Recovery Options
+# ------------------------------------------------------------------------------
+state.backend: rocksdb
+state.checkpoints.dir: s3://fleet-telemetry-dlq/checkpoints
+state.savepoints.dir: s3://fleet-telemetry-dlq/savepoints
+
+# Fault tolerance restart strategies
+restart-strategy: fixed-delay
+restart-strategy.fixed-delay.attempts: 3
+restart-strategy.fixed-delay.delay: 10 s
+
+# Web Dashboard UI Config
+web.port: 8081
+web.submit.enable: true

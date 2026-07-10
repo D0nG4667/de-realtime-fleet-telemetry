@@ -1,0 +1,29 @@
+# ==============================================================================
+# Dockerfile.generator: Synthetic Telemetry Generator Service
+# Uses high-performance Astral 'uv' package installer for fast caching builds
+# ==============================================================================
+FROM python:3.12-slim
+
+# Copy the uv binaries from the official image
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Set environment options
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    UV_COMPILE_BYTECODE=1
+
+# Establish working directory
+WORKDIR /app
+
+# Copy dependency files
+COPY pyproject.toml uv.lock ./
+
+# Install only the generator dependency group using cache mount and frozen lockfile
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-install-project --only-group generator
+
+# Copy application script from src directory
+COPY src/generator.py ./src/
+
+# Default execution entrypoint: Pointing to internal Kafka broker
+ENTRYPOINT ["/app/.venv/bin/python", "src/generator.py", "--bootstrap-servers", "kafka:9092"]
