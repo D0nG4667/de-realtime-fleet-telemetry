@@ -300,3 +300,8 @@ Below are the key systemic blockers resolved:
 ### 5. Docker Desktop Windows Named Pipe 500 Bottlenecks
 *   **Blocker**: Under WSL2 and Windows environments under high concurrent container startup cycles, Docker Engine socket buffers occasionally return 500 API errors when trying to read container JSON properties.
 *   **Resolution**: Added decoupled dependencies in `compose.yml` and structured health checks (`minio-init` waits for healthy `minio`, etc.) to pace service bootstrapping, protecting WSL2 virtual socket endpoints from traffic spikes.
+
+### 6. Defunct/Zombie Python Processes on Container Shutdown
+*   **Blocker**: When stopping containers via `docker compose down`, Flink TaskManager containers can get stuck in a "Stopping" state, throwing errors indicating that a process ID is a "zombie" and cannot be killed. This occurs because the JVM running as PID 1 does not reap orphaned PyFlink Python worker subprocesses after they exit.
+*   **Resolution**: Added `init: true` to `flink-jobmanager` and `flink-taskmanager` in `compose.yml`. This automatically runs the container using a lightweight init daemon (`tini`) as PID 1, which properly forwards signal drops and reaps zombie processes instantly.
+

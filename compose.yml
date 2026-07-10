@@ -72,6 +72,7 @@ services:
     ports:
       - "${FLINK_JOBMANAGER_PORT}:8081"
     restart: unless-stopped
+    init: true
     volumes:
       - ./src/pipeline.py:/opt/flink/usrlib/pipeline.py:ro
       - ./lib/flink-sql-connector-kafka-5.0.0-2.2.jar:/opt/flink/lib/flink-sql-connector-kafka-5.0.0-2.2.jar:ro
@@ -128,6 +129,7 @@ services:
       kafka:
         condition: service_healthy
     restart: unless-stopped
+    init: true
     volumes:
       - ./src/pipeline.py:/opt/flink/usrlib/pipeline.py:ro
       - ./lib/flink-sql-connector-kafka-5.0.0-2.2.jar:/opt/flink/lib/flink-sql-connector-kafka-5.0.0-2.2.jar:ro
