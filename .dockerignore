@@ -1,0 +1,13 @@
+.venv/
+.git/
+.gemini/
+docs/
+scratch/
+*.jar
+*.log
+.gitignore
+Dockerfile
+docker-compose.yml
+README.md
+LICENSE
+config/
