@@ -131,6 +131,14 @@ Job has been submitted with JobID: e1b1cf63cd3edbacc4e37ab7140a8cb4
 ```
 You can view the active JobGraph, backpressure metrics, checkpoint counts, and operator watermarks by visiting the Flink Dashboard at [http://localhost:8082](http://localhost:8082).
 
+#### Apache Flink Web UI Verification
+The screenshots below verify the active state of the stream processing engine:
+
+*   **Running Jobs Overview**: Shows the streaming job `Fleet-Telemetry-Ingestion-Engine` in a healthy `RUNNING` status on the main dashboard page:
+    ![Apache Flink Web Dashboard - Running Jobs](../assets/Apache_Flink_Web_Dashboard_Running_Jobs.png)
+*   **Execution Topology & JobManager Metrics**: Shows the job graph detail view with vertices representing data ingestion, windowing, and the Redis sink:
+    ![Apache Flink Web Dashboard - Job Graph](../assets/Apache_Flink_Web_Dashboard_Job_Manager.png)
+
 ---
 
 ## 4. Cache Verification & Event-Time Idempotency
@@ -174,6 +182,11 @@ The hash map contains the running sliding aggregates computed by Flink:
 7) "pipeline_ingestion_epoch_ms"
 8) "1783651980000"                    # The ending timestamp of the Flink sliding window
 ```
+
+#### Cache State Ingestion Verification
+The screenshot below confirms that the Redis key-value store is successfully receiving rolling updates:
+
+![Redis Ingest Output](../assets/Redis_Serving_Cache_Result.png)
 
 ---
 

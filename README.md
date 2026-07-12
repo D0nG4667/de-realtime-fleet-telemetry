@@ -257,6 +257,17 @@ The solution implements a decoupled, event-driven streaming architecture structu
 *   **Zero Silent Data Loss**: The Flink execution graph achieves an audit compliance rate of **100%**, capturing and filtering corrupted schemas before they hit state aggregators, routing them to a Dead-Letter Queue (DLQ).
 *   **Scalability Under Load**: Tested successfully at a sustained scale of **75,000 events/second** (150% of expected peak volume) by adjusting Kafka partition counts to 8 and allocating 4 distinct Flink Task Slots.
 
+### Visual Pipeline Trace & Proof
+
+The following screen captures demonstrate the ingestion pipeline running in a healthy state inside our containerized network:
+
+1.  **Apache Flink Web Dashboard**: The real-time stream aggregation job `Fleet-Telemetry-Ingestion-Engine` compiles and runs continuously inside the containerized cluster:
+    ![Flink Running Jobs](docs/assets/Apache_Flink_Web_Dashboard_Running_Jobs.png)
+2.  **Flink Job Topology**: Detailed execution graph showing streaming vertex boundaries and live record counts:
+    ![Flink Execution Graph](docs/assets/Apache_Flink_Web_Dashboard_Job_Manager.png)
+3.  **Low-Latency Serving Store (Redis)**: Live query execution inside `redis-cli` confirming rolling sliding-window aggregates for telemetry coordinates and temperature:
+    ![Redis Cache Store](docs/assets/Redis_Serving_Cache_Result.png)
+
 ---
 
 ## 5. Key Learnings & Architecture Resolutions
